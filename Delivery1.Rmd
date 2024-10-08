@@ -25,3 +25,45 @@ rm(list = ls())
 knitr::opts_chunk$set(echo = TRUE)
 
 ```
+
+# Exercice 2
+
+```{r}
+# Read and transform x to numeric
+df = read.table("cdrate.dat", col.names = c("x", "y"))
+x = df["x"]
+class(x) = "Numeric"
+x = x$x
+
+A <- min(x)-.05*diff(range(x))
+Z <- max(x)+.05*diff(range(x))
+nbr <- 7
+
+# Define histogram and the function
+hx <- hist(x,breaks=seq(A,Z,length=nbr+1),freq=F)
+
+hx_f <- stepfun(hx$breaks,c(0,hx$density,0))
+```
+
+```{r}
+# calculate observed values
+observed_values = hx_f(x)
+
+# add them to the histogram
+all_data = append(x, observed_values)
+
+A <- min(all_data)-.05*diff(range(all_data))
+Z <- max(all_data)+.05*diff(range(all_data))
+nbr <- 7
+
+hx <- hist(all_data, breaks=seq(A,Z,length=nbr+1),freq=F)
+```
+
+# Exercice 3
+
+```{r}
+
+```
+
+
+
