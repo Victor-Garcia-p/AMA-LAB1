@@ -3,17 +3,17 @@ title: 'Delivery 1: AMA'
 author: "Victor Garcia Pizarro"
 date: "2024-10-03"
 output:
-  word_document:
-    toc: true
-    toc_depth: '3'
-  pdf_document:
-    toc: true
-    toc_depth: 3
-    number_sections: false
   html_document:
     toc: true
     toc_depth: '3'
     df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: false
+  word_document:
+    toc: true
+    toc_depth: '3'
 editor_options:
   chunk_output_type: console
 ---
@@ -189,6 +189,8 @@ Generate $n=100$ data from $$
 f(x) = (3/4)N(x; m = 0, s = 1) +(1/4) N(x; m = 3/2, s = 1/3)$$
 
 ```{r}
+par(mfrow=c(1,1))
+
 sim.mixt <- function(n=1,k=1, 
          mu=seq(-2*(k-1),2*(k-1),length=k), 
          sigma=seq(1,1,length=k), 
@@ -241,7 +243,7 @@ sigma.mixt <- 1.095287
 scott <- 3.49 * sigma.mixt * length(x)^(-1/3)
 ```
 
-We use the Scott's formula to find the value of b = `scott` (this was done in the density estimation script used in class). The follwing is the histogram result:
+We use the Scott's formula to find the value of b = `scott` (this was done in the density estimation script used in class). The following is the histogram result:
 
 ```{r}
 A <- min(x)-.05*diff(range(x)) 
@@ -279,8 +281,13 @@ b_ml <- b_seq[which.max(b_loo_log_likelihood)]
 From this experiment, the leave-one-out cross-validation max log likelihood method selects b = `r`b_ml` as the optimal value for b (out of the proposed values for b). The corresponding histogram can be found below.
 
 ```{r}
-hx <- hist(x,breaks=seq(A,Z+b,by=b_ml), plot=F)
-plot(hx,freq = FALSE)
+par(mfrow=c(1,2))
+
+hx_bml <- hist(x,breaks=seq(A,Z+b,by=b_ml), plot=F)
+plot(hx_bml,freq = FALSE, main=paste("Histogram with b = ", b_ml))
+
+hx_sc <- hist(x,breaks=seq(A,Z+b,by=scott), plot=F)
+plot(hx_sc,freq = FALSE, main=paste("Histogram with b = ", scott))
 ```
 
 The two suggested values for 𝑏 differ significantly, as seen in the resulting histograms and kernel density estimates. These variations in bin width create distinct impressions of the data. When using Scott's formula, the mixture of the two distributions (in this case, Gaussian distributions) appears less pronounced, making it harder to discern both distributions clearly. In contrast, the bin width derived from the maximum-likelihood method accentuates the presence of two separate patterns, making them more visually evident.
@@ -290,6 +297,8 @@ The two suggested values for 𝑏 differ significantly, as seen in the resulting
 In this exercise, the Gaussian kernel is applied, with its bandwidth determined similarly to the bin width in prior exercises. A broad range of bandwidth values is tested (from 0.1 to 1 in increments of 0.01), and a plot of the leave-one-out log-likelihood is generated for each.
 
 ```{r}
+par(mfrow=c(1,1))
+
 h_seq <- seq(0.1,1, by=0.01)
 h_loo_log_likelihood <- c()
 
