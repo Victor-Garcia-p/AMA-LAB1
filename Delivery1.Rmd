@@ -1,26 +1,30 @@
 ---
-title: "Delivery 1: AMA"
+title: 'Delivery 1: AMA'
 author: "Victor Garcia Pizarro"
 date: "2024-10-03"
 output:
-  word_document:
-    toc: yes
+  html_document:
+    toc: true
     toc_depth: '3'
+    df_print: paged
   pdf_document:
-    toc: yes
+    toc: true
     toc_depth: 3
-    number_sections: no
+    number_sections: false
+  word_document:
+    toc: true
+    toc_depth: '3'
 editor_options:
   chunk_output_type: console
 ---
 
 
-# Exercice 1
+# Exercise 1
 To calculate the relation we used the following approach:
 
-![](Exercice_1.PNG)
+![](Exercise_1.PNG)
 
-# Exercice 2
+# Exercise 2
 
 ```{r}
 # Read and transform x to numeric
@@ -53,7 +57,7 @@ nbr <- 7
 hx <- hist(all_data, breaks=seq(A,Z,length=nbr+1),freq=F, main = "Added observed values", xlab = "x")
 ```
 
-# Exercice 3
+# Exercise 3
 
 ```{r}
 leave_one_out_density <- function(data, nbr) {
@@ -86,10 +90,10 @@ loo_density <- leave_one_out_density(x, 2)
 all_data2 = append(all_data, loo_density)
 
 # plot 
-hx <- hist(all_data2, breaks=seq(A,Z,length=num_bins+1),freq=F, main = "Added points using expression from Exercice 1", xlab = "x")
+hx <- hist(all_data2, breaks=seq(A,Z,length=num_bins+1),freq=F, main = "Added points using expression from Exercise 1", xlab = "x")
 ```
 
-# Exercice 4
+# Exercise 4
 
 ```{r}
 leave_one_out_log_likelihood <- function(data) {
@@ -120,6 +124,62 @@ total_log_likelihood <- leave_one_out_log_likelihood(all_data2)
 total_log_likelihood
 ```
 
+# Exercise 5
+
+For exercise 5, we determined the optimal number of histogram intervals (nbr) by calculating the leave-one-out log-likelihood for different values of nbr ranging from 1 to 15. We then selected the value that maximized the log-likelihood as the optimal choice, and used this to plot the final histogram.
+
+```{r}
+A <- min(x) - 0.05 * diff(range(x))
+Z <- max(x) + 0.05 * diff(range(x))
+
+nbr_values <- seq(1, 15)
+looCV_log_lik <- numeric(length(nbr_values))
+
+for (i in 1:length(nbr_values)) {
+    nbr <- nbr_values[i]
+    hx <- hist(x, breaks = seq(A, Z, length = nbr + 1), plot = FALSE)
+    hx_f <- stepfun(hx$breaks, c(0, hx$density, 0))
+    
+    # Compute the leave-one-out log-likelihood
+    loo_log_lik <- sum(log(hx_f(x)[hx_f(x) > 0]))
+    looCV_log_lik[i] <- loo_log_lik
+}
+
+plot(nbr_values, looCV_log_lik, type = "b", xlab = "Number of Intervals (nbr)", ylab = "LOO Log-Likelihood")
+optimal_nbr <- nbr_values[which.max(looCV_log_lik)]
+
+hx_optimal <- hist(x, breaks = seq(A, Z, length = optimal_nbr + 1), plot = FALSE)
+plot(hx_optimal, freq = FALSE, main = paste("Histogram with Optimal nbr =", optimal_nbr))
 
 
+```
+
+
+# Exercise 6
+
+Here we followed a similar approach to exercise 5, but focused on finding the optimal bin width (b). We evaluated the leave-one-out log-likelihood for a range of possible bin widths and chose the one that maximized the log-likelihood. The histogram was then plotted using this optimal bin width.
+
+```{r}
+b_values <- seq((Z - A) / 15, (Z - A) / 1, length = 30)
+
+looCV_log_lik_b <- numeric(length(b_values))
+
+for (i in 1:length(b_values)) {
+    b <- b_values[i]
+    hx <- hist(x, breaks = seq(A, Z + b, by = b), plot = FALSE)
+    hx_f <- stepfun(hx$breaks, c(0, hx$density, 0))
+    
+    # Compute the leave-one-out log-likelihood
+    loo_log_lik <- sum(log(hx_f(x)[hx_f(x) > 0]))
+    looCV_log_lik_b[i] <- loo_log_lik
+}
+
+
+plot(b_values, looCV_log_lik_b, type = "b", xlab = "Bin Width (b)", ylab = "LOO Log-Likelihood")
+optimal_b <- b_values[which.max(looCV_log_lik_b)]
+
+hx_optimal_b <- hist(x, breaks = seq(A, Z + optimal_b, by = optimal_b), plot = FALSE)
+plot(hx_optimal_b, freq = FALSE, main = paste("Histogram with Optimal b =", round(optimal_b, 2)))
+
+```
 
